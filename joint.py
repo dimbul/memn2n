@@ -14,18 +14,20 @@ import numpy as np
 import pandas as pd
 
 tf.flags.DEFINE_float("learning_rate", 0.01, "Learning rate for Adam Optimizer.")
+tf.flags.DEFINE_integer("hops",3, "Number of hops in the Memory Network.")
+
+####################
 tf.flags.DEFINE_float("anneal_rate", 15, "Number of epochs between halving the learnign rate.")
 tf.flags.DEFINE_float("anneal_stop_epoch", 60, "Epoch number to end annealed lr schedule.")
 tf.flags.DEFINE_float("max_grad_norm", 40.0, "Clip gradients to this norm.")
 tf.flags.DEFINE_integer("evaluation_interval", 10, "Evaluate and print results every x epochs")
 tf.flags.DEFINE_integer("batch_size", 32, "Batch size for training.")
-tf.flags.DEFINE_integer("hops", 3, "Number of hops in the Memory Network.")
 tf.flags.DEFINE_integer("epochs", 60, "Number of epochs to train for.")
 tf.flags.DEFINE_integer("embedding_size", 40, "Embedding size for embedding matrices.")
 tf.flags.DEFINE_integer("memory_size", 50, "Maximum size of memory.")
 tf.flags.DEFINE_integer("random_state", None, "Random state.")
 tf.flags.DEFINE_string("data_dir", "data/tasks_1-20_v1-2/en/", "Directory containing bAbI tasks")
-tf.flags.DEFINE_string("output_file", "scores.csv", "Name of output file for final bAbI accuracy scores.")
+tf.flags.DEFINE_string("output_file", "scores_gradient_noise_01.txt", "Name of output file for final bAbI accuracy scores.")
 FLAGS = tf.flags.FLAGS
 # load all train/test data
 ids = range(1, 21)
@@ -64,6 +66,27 @@ trainQ = []
 valQ = []
 trainA = []
 valA = []
+
+#
+# train_modified =[]
+# for task in train:
+#     temp_train=jaccard_cutting(task)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 for task in train:
     S, Q, A = vectorize_data(task, word_idx, sentence_size, memory_size)
     ts, vs, tq, vq, ta, va = cross_validation.train_test_split(S, Q, A, test_size=0.1, random_state=FLAGS.random_state)
@@ -107,6 +130,7 @@ batches = zip(range(0, n_train-batch_size, batch_size), range(batch_size, n_trai
 batches = [(start, end) for start,end in batches]
 
 with tf.Session() as sess:
+    print('I am here')
     model = MemN2N(batch_size, vocab_size, sentence_size, memory_size, FLAGS.embedding_size, session=sess,
                    hops=FLAGS.hops, max_grad_norm=FLAGS.max_grad_norm)
     for i in range(1, FLAGS.epochs+1):
